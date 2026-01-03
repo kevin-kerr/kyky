@@ -25,42 +25,42 @@ export default class MathGame extends Phaser.Scene {
         this.correctCount = 0;
 
         // Title
-        this.add.text(512, 80, 'Math Flashcards', {
-            fontSize: '48px',
+        this.add.text(512, 90, 'Math Flashcards', {
+            fontSize: '40px',
             color: '#2c3e50',
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
         // Instructions
-        this.add.text(512, 130, 'Answer quickly to earn more coins!', {
-            fontSize: '20px',
+        this.add.text(512, 135, 'Answer quickly to earn more coins!', {
+            fontSize: '18px',
             color: '#7f8c8d'
         }).setOrigin(0.5);
 
         // Timer display
-        this.timerText = this.add.text(512, 180, 'Time: 10.0s', {
-            fontSize: '28px',
+        this.timerText = this.add.text(512, 170, 'Time: 10.0s', {
+            fontSize: '26px',
             color: '#e74c3c',
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
         // Question display
-        this.questionText = this.add.text(512, 280, '', {
-            fontSize: '72px',
+        this.questionText = this.add.text(512, 245, '', {
+            fontSize: '64px',
             color: '#2c3e50',
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
         // Answer display
-        this.answerText = this.add.text(512, 380, '', {
+        this.answerText = this.add.text(512, 325, '', {
             fontSize: '48px',
             color: '#3498db',
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
         // Score display
-        this.scoreText = this.add.text(512, 450, 'Problems: 0 | Correct: 0', {
-            fontSize: '20px',
+        this.scoreText = this.add.text(512, 380, 'Problems: 0 | Correct: 0', {
+            fontSize: '18px',
             color: '#27ae60'
         }).setOrigin(0.5);
 
@@ -68,7 +68,7 @@ export default class MathGame extends Phaser.Scene {
         this.createNumberPad();
 
         // Back button
-        this.createButton(100, 700, 'Exit', () => {
+        this.createButton(120, 720, 'Exit', () => {
             this.scene.start('Town');
         });
 
@@ -187,17 +187,17 @@ export default class MathGame extends Phaser.Scene {
     }
 
     showFeedback(text, color) {
-        const feedback = this.add.text(512, 500, text, {
-            fontSize: '32px',
+        const feedback = this.add.text(512, 410, text, {
+            fontSize: '28px',
             color: '#ffffff',
             backgroundColor: Phaser.Display.Color.IntegerToRGB(color).rgba,
-            padding: { x: 20, y: 10 }
+            padding: { x: 15, y: 8 }
         }).setOrigin(0.5);
 
         this.tweens.add({
             targets: feedback,
             alpha: 0,
-            y: 460,
+            y: 380,
             duration: 1500,
             ease: 'Power2',
             onComplete: () => {
@@ -207,10 +207,10 @@ export default class MathGame extends Phaser.Scene {
     }
 
     createNumberPad() {
-        const startX = 300;
-        const startY = 540;
-        const buttonSize = 60;
-        const spacing = 70;
+        const startX = 362;
+        const startY = 450;
+        const buttonSize = 55;
+        const spacing = 65;
 
         // Numbers 1-9
         for (let i = 1; i <= 9; i++) {
@@ -276,32 +276,32 @@ export default class MathGame extends Phaser.Scene {
     createButton(x, y, text, callback) {
         const button = this.add.graphics();
         button.fillStyle(0xe74c3c, 1);
-        button.fillRoundedRect(x - 60, y - 30, 120, 60, 10);
+        button.fillRoundedRect(x - 50, y - 24, 100, 48, 8);
         button.lineStyle(3, 0x2c3e50, 1);
-        button.strokeRoundedRect(x - 60, y - 30, 120, 60, 10);
+        button.strokeRoundedRect(x - 50, y - 24, 100, 48, 8);
 
         const buttonText = this.add.text(x, y, text, {
-            fontSize: '20px',
+            fontSize: '18px',
             color: '#ffffff',
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
-        const zone = this.add.zone(x, y, 120, 60).setInteractive();
+        const zone = this.add.zone(x, y, 100, 48).setInteractive();
 
         zone.on('pointerover', () => {
             button.clear();
             button.fillStyle(0xc0392b, 1);
-            button.fillRoundedRect(x - 60, y - 30, 120, 60, 10);
+            button.fillRoundedRect(x - 50, y - 24, 100, 48, 8);
             button.lineStyle(3, 0xffff00, 1);
-            button.strokeRoundedRect(x - 60, y - 30, 120, 60, 10);
+            button.strokeRoundedRect(x - 50, y - 24, 100, 48, 8);
         });
 
         zone.on('pointerout', () => {
             button.clear();
             button.fillStyle(0xe74c3c, 1);
-            button.fillRoundedRect(x - 60, y - 30, 120, 60, 10);
+            button.fillRoundedRect(x - 50, y - 24, 100, 48, 8);
             button.lineStyle(3, 0x2c3e50, 1);
-            button.strokeRoundedRect(x - 60, y - 30, 120, 60, 10);
+            button.strokeRoundedRect(x - 50, y - 24, 100, 48, 8);
         });
 
         zone.on('pointerdown', callback);
