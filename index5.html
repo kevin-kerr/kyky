@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>Math Pet</title>
+  <style>
+    :root{--bg:#0b1220;--card:#121b2f;--ink:#eaf0ff;--muted:#a9b7e6;--good:#1fe28a;--bad:#ff4d4d;--btn:#1a2646;--btn2:#23345f;--ring:#3b5cff}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);background:radial-gradient(1200px 700px at 50% -10%,#1a2a5e 0%,var(--bg) 55%)}
+    .wrap{max-width:860px;margin:0 auto;padding:18px 14px 24px}
+    .top{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .pill{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);padding:10px 12px;border-radius:14px;display:flex;gap:10px;align-items:center}
+    .pill b{font-size:18px}
+    .small{font-size:12px;color:var(--muted)}
+    .grid{display:grid;gap:14px}
+    .card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.10);border-radius:18px;padding:14px}
+    .row{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .btn{appearance:none;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,var(--btn2),var(--btn));color:var(--ink);padding:14px 16px;border-radius:16px;font-weight:700;font-size:18px;min-width:140px}
+    .btn:active{transform:scale(.99);filter:brightness(1.08)}
+    .btn.secondary{background:rgba(255,255,255,.06)}
+    .btn.danger{background:rgba(255,77,77,.12);border-color:rgba(255,77,77,.35)}
+    .petStage{position:relative;min-height:270px;display:flex;align-items:center;justify-content:center;border-radius:18px;overflow:hidden}
+    .petStage.bg-stars{background:radial-gradient(700px 380px at 50% 10%,rgba(255,255,255,.12),transparent 55%), repeating-radial-gradient(circle at 20% 30%, rgba(255,255,255,.12) 0 2px, transparent 2px 34px), linear-gradient(180deg,#1b2a60,#0c1428)}
+    .petStage.bg-default{background:radial-gradient(700px 380px at 50% 10%,rgba(255,255,255,.10),transparent 60%), linear-gradient(180deg,#1a2a5e,#0c1428)}
+    .petEmoji{font-size:110px;line-height:1;filter:drop-shadow(0 10px 20px rgba(0,0,0,.45))}
+    .mood{position:absolute;bottom:18px;right:18px;font-size:36px;opacity:.95}
+    .acc{position:absolute;font-size:42px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.35))}
+    .acc.hat{top:22px}
+    .acc.bow{left:18px;bottom:38px}
+    .acc.glasses{top:110px}
+    .acc.toy{right:18px;bottom:38px}
+    .bar{height:14px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);border-radius:999px;overflow:hidden;min-width:240px}
+    .bar>div{height:100%;background:linear-gradient(90deg,#ff5b5b,#ffd45b,#1fe28a);width:50%}
+    .tabRow{display:flex;gap:10px;flex-wrap:wrap}
+    .tab{padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);font-weight:800}
+    .tab.on{outline:3px solid rgba(59,92,255,.35);border-color:rgba(59,92,255,.55)}
+    .shopGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    @media (min-width:740px){.shopGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+    .item{border-radius:16px;padding:12px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);display:flex;flex-direction:column;gap:10px;min-height:150px}
+    .item .icon{font-size:34px}
+    .item .name{font-weight:900;font-size:16px}
+    .item .price{color:var(--muted);font-size:13px}
+    .item .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+    .sbtn{padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:var(--ink);font-weight:900;font-size:14px}
+    .sbtn.primary{background:linear-gradient(180deg,var(--btn2),var(--btn))}
+    .sbtn:active{transform:scale(.99);filter:brightness(1.08)}
+    .gameCard{border-radius:18px;padding:16px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05)}
+    .flashGood{box-shadow:0 0 0 4px rgba(31,226,138,.35) inset}
+    .flashBad{box-shadow:0 0 0 4px rgba(255,77,77,.35) inset}
+    .problem{font-size:44px;font-weight:1000;letter-spacing:.5px}
+    .timer{font-size:16px;color:var(--muted);font-weight:900}
+    .answerBox{font-size:36px;font-weight:1000;min-height:52px;display:flex;align-items:center;justify-content:center;border-radius:16px;border:1px solid rgba(255,255,255,.12);background:rgba(0,0,0,.25);padding:10px}
+    .pad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+    .nbtn{padding:18px 0;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.06));color:var(--ink);font-weight:1000;font-size:26px}
+    .nbtn:active{transform:scale(.99);filter:brightness(1.08)}
+    .pad2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:10px}
+    .nbtn.small{font-size:18px;padding:14px 0}
+    .footerHint{margin-top:10px;color:rgba(234,240,255,.75);font-size:12px;line-height:1.35}
+    a{color:inherit}
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+  <script>
+    const e = React.createElement
+    const LS_KEY = "mathpet_v1"
+
+    const PETS = {
+      dog:{id:"dog",name:"Dog",icon:"🐶",price:0},
+      cat:{id:"cat",name:"Cat",icon:"🐱",price:100},
+      bunny:{id:"bunny",name:"Bunny",icon:"🐰",price:120},
+      hamster:{id:"hamster",name:"Hamster",icon:"🐹",price:140},
+      fox:{id:"fox",name:"Fox",icon:"🦊",price:180},
+      panda:{id:"panda",name:"Panda",icon:"🐼",price:220},
+    }
+
+    const SHOP = [
+      {id:"bow",type:"acc",slot:"bow",name:"Bows / Ribbons",icon:"🎀",price:30},
+      {id:"hat",type:"acc",slot:"hat",name:"Hats",icon:"🎩",price:40},
+      {id:"glasses",type:"acc",slot:"glasses",name:"Glasses",icon:"👓",price:35},
+      {id:"bgStars",type:"bg",slot:"bg",name:"Star Background",icon:"⭐",price:50},
+      {id:"toy",type:"toy",slot:"toy",name:"Toy",icon:"🧸",price:45},
+      {id:"treat",type:"consumable",slot:"treat",name:"Special Treat",icon:"🍕",price:20},
+      {id:"pet_cat",type:"pet",pet:"cat"},
+      {id:"pet_bunny",type:"pet",pet:"bunny"},
+      {id:"pet_hamster",type:"pet",pet:"hamster"},
+      {id:"pet_fox",type:"pet",pet:"fox"},
+      {id:"pet_panda",type:"pet",pet:"panda"},
+    ].map(x=>{
+      if(x.type==="pet"){
+        const p=PETS[x.pet]
+        return {...x,name:"Unlock "+p.name,icon:p.icon,price:p.price}
+      }
+      return x
+    })
+
+    const clamp = (n,min,max)=>Math.max(min,Math.min(max,n))
+    const now = ()=>Date.now()
+
+    function load(){
+      try{
+        const raw = localStorage.getItem(LS_KEY)
+        const base = raw? JSON.parse(raw) : null
+        const st = base && typeof base==="object" ? base : null
+        const def = {
+          coins:0,
+          hunger:100,
+          unlockedPets:["dog"],
+          currentPet:"dog",
+          owned:{},
+          equipped:{},
+          treats:0,
+          lastHungerTs: now()
+        }
+        const merged = {...def,...(st||{})}
+        merged.owned = {...(st&&st.owned||{})}
+        merged.equipped = {...(st&&st.equipped||{})}
+        merged.unlockedPets = Array.isArray(merged.unlockedPets) && merged.unlockedPets.length ? merged.unlockedPets : ["dog"]
+        if(!PETS[merged.currentPet]) merged.currentPet="dog"
+        const dec = Math.floor((now()- (merged.lastHungerTs||now()))/45000)
+        if(dec>0){
+          merged.hunger = clamp((merged.hunger||100)-dec,0,100)
+          merged.lastHungerTs = (merged.lastHungerTs||now()) + dec*45000
+        }
+        return merged
+      }catch(_){
+        return {coins:0,hunger:100,unlockedPets:["dog"],currentPet:"dog",owned:{},equipped:{},treats:0,lastHungerTs:now()}
+      }
+    }
+
+    function save(st){
+      localStorage.setItem(LS_KEY, JSON.stringify(st))
+    }
+
+    function makeProblem(){
+      const isDiv = Math.random()<0.35
+      const a = Math.floor(Math.random()*10)
+      const b = Math.floor(Math.random()*10)
+      if(!isDiv){
+        return {text:`${a} × ${b}`,answer:a*b}
+      }
+      const d = Math.max(1,a)
+      const q = b
+      const dividend = d*q
+      return {text:`${dividend} ÷ ${d}`,answer:q}
+    }
+
+    function App(){
+      const [st,setSt] = React.useState(load)
+      const [view,setView] = React.useState("home")
+      const [shopTab,setShopTab] = React.useState("items")
+
+      const [round,setRound] = React.useState(null)
+      const [flash,setFlash] = React.useState(null)
+
+      React.useEffect(()=>{ save(st) },[st])
+
+      React.useEffect(()=>{
+        const id = setInterval(()=>{
+          setSt(s=>{
+            const last = s.lastHungerTs||now()
+            const dec = Math.floor((now()-last)/45000)
+            if(dec<=0) return s
+            return {...s, hunger: clamp((s.hunger||0)-dec,0,100), lastHungerTs: last + dec*45000}
+          })
+        },5000)
+        return ()=>clearInterval(id)
+      },[])
+
+      const pet = PETS[st.currentPet] || PETS.dog
+      const hungry = st.hunger<=25
+      const mood = st.hunger<=8 ? "😭" : st.hunger<=25 ? "😢" : st.hunger>=85 ? "😄" : "🙂"
+
+      const bgClass = st.equipped.bg==="bgStars" ? "bg-stars" : "bg-default"
+
+      const equipped = {
+        hat: st.equipped.hat ? "🎩" : null,
+        bow: st.equipped.bow ? "🎀" : null,
+        glasses: st.equipped.glasses ? "👓" : null,
+        toy: st.equipped.toy ? "🧸" : null,
+      }
+
+      const hungerPct = clamp(st.hunger||0,0,100)
+
+      function giveCoins(n){ setSt(s=>({...s, coins:(s.coins||0)+n })) }
+      function addHunger(n){ setSt(s=>({...s, hunger: clamp((s.hunger||0)+n,0,100) })) }
+
+      function startPlay(){
+        const questions = Array.from({length:10},()=>makeProblem())
+        setRound({i:0,questions,answerStr:"",sec:10,correct:0,coinsEarned:0})
+        setFlash(null)
+        setView("play")
+      }
+
+      React.useEffect(()=>{
+        if(view!=="play" || !round) return
+        if(round.sec<=0){
+          submitAnswer(true)
+          return
+        }
+        const t = setTimeout(()=>{
+          setRound(r=> r ? ({...r, sec: r.sec-1}) : r)
+        },1000)
+        return ()=>clearTimeout(t)
+      },[view,round && round.sec])
+
+      function pressDigit(d){
+        if(view!=="play" || !round) return
+        setRound(r=>{
+          if(!r) return r
+          const next = (r.answerStr + d).slice(0,2)
+          return {...r,answerStr:next}
+        })
+      }
+      function backspace(){
+        if(view!=="play" || !round) return
+        setRound(r=> r ? ({...r,answerStr:r.answerStr.slice(0,-1)}) : r)
+      }
+      function clearAns(){
+        if(view!=="play" || !round) return
+        setRound(r=> r ? ({...r,answerStr:""}) : r)
+      }
+
+      function submitAnswer(fromTimer){
+        setRound(r=>{
+          if(!r) return r
+          const q = r.questions[r.i]
+          const val = r.answerStr==="" ? null : Number(r.answerStr)
+          const ok = val===q.answer && !fromTimer
+          const ok2 = fromTimer ? false : ok
+          const coins = ok2 ? 5 : 0
+          const hungerBoost = ok2 ? 3 : 0
+
+          if(ok2){
+            setFlash("good")
+            giveCoins(coins)
+            addHunger(hungerBoost)
+          }else{
+            setFlash("bad")
+          }
+          setTimeout(()=>setFlash(null),220)
+
+          const nextI = r.i+1
+          if(nextI>=r.questions.length){
+            if(r.correct + (ok2?1:0) >= 6) addHunger(10)
+            setTimeout(()=>{ setView("home"); setRound(null) },350)
+            return {...r, correct:r.correct+(ok2?1:0), coinsEarned:r.coinsEarned+coins}
+          }
+
+          return {
+            ...r,
+            i: nextI,
+            answerStr:"",
+            sec: 10,
+            correct: r.correct + (ok2?1:0),
+            coinsEarned: r.coinsEarned + coins
+          }
+        })
+      }
+
+      function buy(item){
+        setSt(s=>{
+          const coins = s.coins||0
+          if(coins < item.price) return s
+          if(item.type==="pet"){
+            const pid = item.pet
+            if(s.unlockedPets.includes(pid)) return s
+            return {...s, coins: coins-item.price, unlockedPets:[...s.unlockedPets,pid]}
+          }
+          if(item.type==="consumable"){
+            return {...s, coins: coins-item.price, treats:(s.treats||0)+1}
+          }
+          if(s.owned[item.id]) return s
+          return {...s, coins: coins-item.price, owned:{...s.owned,[item.id]:true}}
+        })
+      }
+
+      function toggleEquip(item){
+        if(item.type==="pet"){
+          setSt(s=> s.unlockedPets.includes(item.pet) ? ({...s,currentPet:item.pet}) : s)
+          return
+        }
+        if(item.type==="consumable") return
+        if(item.type==="bg"){
+          setSt(s=>{
+            if(!s.owned[item.id]) return s
+            const on = s.equipped.bg===item.id ? null : item.id
+            return {...s, equipped:{...s.equipped, bg:on}}
+          })
+          return
+        }
+        setSt(s=>{
+          if(!s.owned[item.id]) return s
+          const on = !!s.equipped[item.slot]
+          return {...s, equipped:{...s.equipped,[item.slot]:!on}}
+        })
+      }
+
+      function useTreat(){
+        setSt(s=>{
+          const t = s.treats||0
+          if(t<=0) return s
+          const nextH = clamp((s.hunger||0)+30,0,100)
+          return {...s, treats:t-1, hunger:nextH}
+        })
+      }
+
+      function resetAll(){
+        const fresh = {coins:0,hunger:100,unlockedPets:["dog"],currentPet:"dog",owned:{},equipped:{},treats:0,lastHungerTs:now()}
+        setSt(fresh)
+        setView("home")
+        setRound(null)
+      }
+
+      const header = e("div",{className:"top"},
+        e("div",{className:"pill"},
+          e("div",null,"🪙"),
+          e("div",null,e("div",null,e("b",null,st.coins||0)," coins"),e("div",{className:"small"},(st.treats||0)+" treats"))
+        ),
+        e("div",{className:"pill"},
+          e("div",null,"🍖"),
+          e("div",null,
+            e("div",null,e("b",null,hungerPct),"% hunger"),
+            e("div",{className:"small"}, hungry ? "Your pet is hungry" : "Doing good")
+          )
+        )
+      )
+
+      const petCard = e("div",{className:"card"},
+        e("div",{className:"row"},
+          e("div",null,
+            e("div",{style:{fontWeight:1000,fontSize:18}}, "Your Math Pet"),
+            e("div",{className:"small"}, hungry ? "Play to feed your pet. Treats help too." : "Keep earning coins and try the shop!")
+          ),
+          e("div",{style:{display:"flex",gap:10,flexWrap:"wrap"}},
+            e("button",{className:"btn",onClick:startPlay},"Play"),
+            e("button",{className:"btn secondary",onClick:()=>{setShopTab("items");setView("shop")}},"Shop")
+          )
+        ),
+        e("div",{style:{height:12}}),
+        e("div",{className:"row"},
+          e("div",{style:{display:"flex",gap:10,alignItems:"center"}},
+            e("div",{className:"bar"}, e("div",{style:{width:hungerPct+"%"}})),
+            e("div",{className:"small"}, hungry ? "Low!" : "OK")
+          ),
+          e("div",{style:{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}},
+            e("button",{className:"btn secondary",onClick:useTreat,disabled:(st.treats||0)<=0,style:{minWidth:170,opacity:(st.treats||0)<=0?.55:1}}, "Use Treat 🍕"),
+            e("button",{className:"btn danger",onClick:resetAll,style:{minWidth:150}}, "Reset")
+          )
+        ),
+        e("div",{style:{height:14}}),
+        e("div",{className:"petStage "+bgClass},
+          equipped.hat ? e("div",{className:"acc hat"},equipped.hat) : null,
+          equipped.glasses ? e("div",{className:"acc glasses"},equipped.glasses) : null,
+          equipped.bow ? e("div",{className:"acc bow"},equipped.bow) : null,
+          equipped.toy ? e("div",{className:"acc toy"},equipped.toy) : null,
+          e("div",{className:"petEmoji"}, pet.icon),
+          e("div",{className:"mood"}, mood)
+        )
+      )
+
+      function PlayView(){
+        const q = round.questions[round.i]
+        const cls = "gameCard " + (flash==="good" ? "flashGood" : flash==="bad" ? "flashBad" : "")
+        const keypad = (digits)=>digits.map(d=>e("button",{key:d,className:"nbtn",onClick:()=>pressDigit(String(d))},String(d)))
+        return e("div",{className:"grid"},
+          header,
+          e("div",{className:cls},
+            e("div",{className:"row"},
+              e("div",null,
+                e("div",{className:"small"}, "Question "+(round.i+1)+" / "+round.questions.length),
+                e("div",{className:"problem"}, q.text)
+              ),
+              e("div",{style:{textAlign:"right"}},
+                e("div",{className:"timer"}, "⏱ "+round.sec+"s"),
+                e("div",{className:"small"}, "Correct: "+round.correct+"  •  +"+round.coinsEarned+" coins")
+              )
+            ),
+            e("div",{style:{height:12}}),
+            e("div",{className:"answerBox"}, round.answerStr==="" ? "—" : round.answerStr),
+            e("div",{className:"pad"},
+              ...keypad([1,2,3,4,5,6,7,8,9])
+            ),
+            e("div",{className:"pad2"},
+              e("button",{className:"nbtn small",onClick:clearAns},"Clear"),
+              e("button",{className:"nbtn",onClick:()=>pressDigit("0")},"0"),
+              e("button",{className:"nbtn small",onClick:backspace},"⌫")
+            ),
+            e("div",{style:{display:"flex",gap:10,marginTop:12,flexWrap:"wrap"}},
+              e("button",{className:"btn",onClick:()=>submitAnswer(false),style:{minWidth:220}},"Submit"),
+              e("button",{className:"btn secondary",onClick:()=>{setView("home");setRound(null)},style:{minWidth:220}},"Quit")
+            ),
+            e("div",{className:"footerHint"}, "Tip: You only have 10 seconds per question. Get coins for correct answers and help your pet feel better!")
+          )
+        )
+      }
+
+      function ShopView(){
+        const tabs = [
+          {id:"items",label:"Items"},
+          {id:"pets",label:"Pets"},
+          {id:"owned",label:"Owned"},
+        ]
+        const items = SHOP.filter(it=>{
+          if(shopTab==="pets") return it.type==="pet"
+          if(shopTab==="items") return it.type!=="pet"
+          return true
+        })
+
+        function isOwned(it){
+          if(it.type==="pet") return st.unlockedPets.includes(it.pet)
+          if(it.type==="consumable") return false
+          return !!st.owned[it.id]
+        }
+        function isEquipped(it){
+          if(it.type==="pet") return st.currentPet===it.pet
+          if(it.type==="bg") return st.equipped.bg===it.id
+          if(it.type==="consumable") return false
+          return !!st.equipped[it.slot]
+        }
+
+        const list = (shopTab==="owned")
+          ? items.filter(it=> it.type==="pet" ? st.unlockedPets.includes(it.pet) : (it.type==="consumable" ? false : !!st.owned[it.id]))
+          : items
+
+        return e("div",{className:"grid"},
+          header,
+          e("div",{className:"card"},
+            e("div",{className:"row"},
+              e("div",null,
+                e("div",{style:{fontWeight:1000,fontSize:18}},"Shop"),
+                e("div",{className:"small"},"Buy items and pets with coins. Tap owned items to equip.")
+              ),
+              e("button",{className:"btn secondary",onClick:()=>setView("home")},"Back")
+            ),
+            e("div",{style:{height:12}}),
+            e("div",{className:"tabRow"},
+              ...tabs.map(t=>e("button",{key:t.id,className:"tab "+(shopTab===t.id?"on":""),onClick:()=>setShopTab(t.id)},t.label))
+            ),
+            e("div",{style:{height:12}}),
+            e("div",{className:"shopGrid"},
+              ...list.map(it=>{
+                const owned = isOwned(it)
+                const equippedNow = isEquipped(it)
+                const canBuy = (st.coins||0) >= it.price
+                const buyLabel = it.type==="consumable" ? "Buy (+1)" : "Buy"
+                const actionA = owned
+                  ? e("button",{className:"sbtn primary",onClick:()=>toggleEquip(it)}, equippedNow ? "Equipped" : (it.type==="pet" ? "Use" : "Equip"))
+                  : e("button",{className:"sbtn primary",onClick:()=>buy(it),disabled:!canBuy,style:{opacity:canBuy?1:.55}}, buyLabel)
+                const actionB = owned || it.type==="consumable"
+                  ? null
+                  : e("button",{className:"sbtn",onClick:()=>{},style:{opacity:.75}}, "Need "+Math.max(0,it.price-(st.coins||0)))
+
+                return e("div",{key:it.id,className:"item"},
+                  e("div",{className:"icon"},it.icon),
+                  e("div",{className:"name"},it.name),
+                  it.type==="consumable"
+                    ? e("div",{className:"price"},"Cost: "+it.price+" coins • Restores hunger")
+                    : e("div",{className:"price"},"Cost: "+it.price+" coins"+(owned?" • Owned":"")),
+                  e("div",{className:"actions"}, actionA, actionB)
+                )
+              })
+            ),
+            e("div",{className:"footerHint"},
+              "Accessories show near your pet on the main screen. Backgrounds change the scene. Toys appear beside your pet. Treats restore hunger."
+            )
+          )
+        )
+      }
+
+      return e("div",{className:"wrap"},
+        view==="home" ? e("div",{className:"grid"}, header, petCard) : null,
+        view==="play" && round ? e(PlayView) : null,
+        view==="shop" ? e(ShopView) : null
+      )
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(e(App))
+  </script>
+</body>
+</html>
