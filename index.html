@@ -1,352 +1,133 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Math Flashcards</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        h1 {
-            color: white;
-            font-size: 1.5rem;
-            margin: 0 0 20px 0;
-            text-align: center;
-        }
-        
-        .settings {
-            background: white;
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 20px;
-            width: 100%;
-            max-width: 360px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-        
-        .settings label {
-            display: block;
-            margin-bottom: 12px;
-            font-size: 0.9rem;
-            color: #333;
-        }
-        
-        .settings select, .settings input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1rem;
-            margin-top: 4px;
-        }
-        
-        .operations {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-top: 4px;
-        }
-        
-        .operations button {
-            flex: 1;
-            min-width: 60px;
-            padding: 10px;
-            border: 2px solid #667eea;
-            background: white;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .operations button.active {
-            background: #667eea;
-            color: white;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 24px;
-            padding: 32px;
-            width: 100%;
-            max-width: 360px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            text-align: center;
-        }
-        
-        .problem {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 24px;
-            min-height: 4rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .answer-input {
-            width: 100%;
-            padding: 16px;
-            font-size: 2rem;
-            text-align: center;
-            border: 3px solid #e0e0e0;
-            border-radius: 12px;
-            margin-bottom: 16px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        
-        .answer-input:focus {
-            border-color: #667eea;
-        }
-        
-        .answer-input.correct {
-            border-color: #4CAF50;
-            background: #e8f5e9;
-        }
-        
-        .answer-input.incorrect {
-            border-color: #f44336;
-            background: #ffebee;
-        }
-        
-        .btn {
-            width: 100%;
-            padding: 16px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
-        }
-        
-        .btn:active {
-            transform: scale(0.98);
-        }
-        
-        .btn-check {
-            background: #667eea;
-            color: white;
-        }
-        
-        .btn-next {
-            background: #4CAF50;
-            color: white;
-        }
-        
-        .feedback {
-            font-size: 1.5rem;
-            margin: 16px 0;
-            min-height: 2rem;
-        }
-        
-        .stats {
-            margin-top: 20px;
-            color: white;
-            font-size: 1.1rem;
-            text-align: center;
-        }
-        
-        .streak {
-            font-size: 1.5rem;
-            margin-top: 8px;
-        }
-        
-        .emoji-burst {
-            font-size: 3rem;
-            animation: burst 0.5s ease-out;
-        }
-        
-        @keyframes burst {
-            0% { transform: scale(0); opacity: 0; }
-            50% { transform: scale(1.3); }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
-        }
-        
-        .shake {
-            animation: shake 0.3s ease-in-out;
-        }
-    </style>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Math Flash Cards</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}
+body{background:#9b59b6;min-height:100vh;display:flex;justify-content:center;align-items:center}
+.app{text-align:center;padding:20px;width:100%;max-width:400px}
+h1{color:#fff;font-size:2em;margin-bottom:20px;text-shadow:2px 2px 4px rgba(0,0,0,0.3)}
+.problem{background:#fff;border-radius:20px;padding:30px;font-size:3em;font-weight:bold;color:#8e44ad;margin:20px 0;box-shadow:0 8px 20px rgba(0,0,0,0.2)}
+.timer{font-size:2em;color:#fff;margin:10px 0}
+.timer-bar{background:rgba(255,255,255,0.3);height:20px;border-radius:10px;overflow:hidden;margin:10px 0}
+.timer-fill{background:#f1c40f;height:100%;transition:width 0.1s linear}
+.score{color:#fff;font-size:1.5em;margin:10px 0}
+.numpad{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:20px 0}
+.numpad button{background:#fff;border:none;border-radius:15px;padding:20px;font-size:1.8em;font-weight:bold;color:#8e44ad;box-shadow:0 4px 10px rgba(0,0,0,0.2);cursor:pointer;transition:transform 0.1s}
+.numpad button:active{transform:scale(0.95)}
+.start-btn{background:#f1c40f;border:none;border-radius:20px;padding:20px 60px;font-size:1.5em;font-weight:bold;color:#8e44ad;cursor:pointer;box-shadow:0 6px 15px rgba(0,0,0,0.3)}
+.coins{font-size:2em;color:#f1c40f;margin:20px 0}
+.flash{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;opacity:0;transition:opacity 0.1s}
+.flash.green{background:#2ecc71;opacity:0.5}
+.flash.red{background:#e74c3c;opacity:0.5}
+.end-screen{background:#fff;border-radius:20px;padding:30px;box-shadow:0 8px 20px rgba(0,0,0,0.2)}
+.end-screen h2{color:#8e44ad;font-size:2em}
+.end-screen p{font-size:1.5em;color:#666;margin:10px 0}
+</style>
 </head>
 <body>
-    <h1>🧮 Math Flashcards</h1>
-    
-    <div class="settings">
-        <label>
-            Operations:
-            <div class="operations">
-                <button id="op-add" class="active" onclick="toggleOp('add')">+</button>
-                <button id="op-sub" class="active" onclick="toggleOp('sub')">−</button>
-                <button id="op-mul" onclick="toggleOp('mul')">×</button>
-                <button id="op-div" onclick="toggleOp('div')">÷</button>
-            </div>
-        </label>
-        <label>
-            Max number:
-            <input type="number" id="maxNum" value="20" min="5" max="100" onchange="newProblem()">
-        </label>
-    </div>
-    
-    <div class="card">
-        <div class="problem" id="problem"></div>
-        <input type="number" class="answer-input" id="answer" placeholder="?" inputmode="numeric" pattern="[0-9]*">
-        <div class="feedback" id="feedback"></div>
-        <button class="btn btn-check" id="actionBtn" onclick="checkAnswer()">Check</button>
-    </div>
-    
-    <div class="stats">
-        <div>Score: <span id="correct">0</span> / <span id="total">0</span></div>
-        <div class="streak">🔥 Streak: <span id="streak">0</span></div>
-    </div>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel">
+const {useState,useEffect,useRef}=React;
 
-    <script>
-        let currentAnswer = 0;
-        let correct = 0;
-        let total = 0;
-        let streak = 0;
-        let isChecked = false;
-        let operations = { add: true, sub: true, mul: false, div: false };
-        
-        const emojis = {
-            correct: ['🎉', '⭐', '🌟', '✨', '🎯', '💪', '🏆', '👏'],
-            incorrect: ['🤔', '💭', '🧐']
-        };
-        
-        function toggleOp(op) {
-            operations[op] = !operations[op];
-            const activeOps = Object.values(operations).filter(v => v).length;
-            if (activeOps === 0) {
-                operations[op] = true;
-            }
-            document.getElementById('op-' + op).classList.toggle('active', operations[op]);
-            newProblem();
-        }
-        
-        function getActiveOperations() {
-            return Object.entries(operations).filter(([k, v]) => v).map(([k]) => k);
-        }
-        
-        function randomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-        
-        function newProblem() {
-            const maxNum = parseInt(document.getElementById('maxNum').value) || 20;
-            const ops = getActiveOperations();
-            const op = ops[randomInt(0, ops.length - 1)];
-            
-            let a, b, symbol;
-            
-            switch(op) {
-                case 'add':
-                    a = randomInt(1, maxNum);
-                    b = randomInt(1, maxNum);
-                    currentAnswer = a + b;
-                    symbol = '+';
-                    break;
-                case 'sub':
-                    a = randomInt(1, maxNum);
-                    b = randomInt(1, a);
-                    currentAnswer = a - b;
-                    symbol = '−';
-                    break;
-                case 'mul':
-                    a = randomInt(1, Math.min(12, maxNum));
-                    b = randomInt(1, Math.min(12, maxNum));
-                    currentAnswer = a * b;
-                    symbol = '×';
-                    break;
-                case 'div':
-                    b = randomInt(1, Math.min(12, maxNum));
-                    currentAnswer = randomInt(1, Math.min(12, maxNum));
-                    a = b * currentAnswer;
-                    symbol = '÷';
-                    break;
-            }
-            
-            document.getElementById('problem').textContent = `${a} ${symbol} ${b} = ?`;
-            document.getElementById('answer').value = '';
-            document.getElementById('answer').className = 'answer-input';
-            document.getElementById('feedback').innerHTML = '';
-            document.getElementById('actionBtn').textContent = 'Check';
-            document.getElementById('actionBtn').className = 'btn btn-check';
-            isChecked = false;
-            
-            document.getElementById('answer').focus();
-        }
-        
-        function checkAnswer() {
-            if (isChecked) {
-                newProblem();
-                return;
-            }
-            
-            const input = document.getElementById('answer');
-            const userAnswer = parseInt(input.value);
-            const feedback = document.getElementById('feedback');
-            const btn = document.getElementById('actionBtn');
-            
-            if (isNaN(userAnswer)) {
-                input.classList.add('shake');
-                setTimeout(() => input.classList.remove('shake'), 300);
-                return;
-            }
-            
-            total++;
-            isChecked = true;
-            
-            if (userAnswer === currentAnswer) {
-                correct++;
-                streak++;
-                input.className = 'answer-input correct';
-                const emoji = emojis.correct[randomInt(0, emojis.correct.length - 1)];
-                feedback.innerHTML = `<span class="emoji-burst">${emoji}</span>`;
-            } else {
-                streak = 0;
-                input.className = 'answer-input incorrect';
-                const emoji = emojis.incorrect[randomInt(0, emojis.incorrect.length - 1)];
-                feedback.innerHTML = `${emoji} It's ${currentAnswer}`;
-            }
-            
-            document.getElementById('correct').textContent = correct;
-            document.getElementById('total').textContent = total;
-            document.getElementById('streak').textContent = streak;
-            
-            btn.textContent = 'Next →';
-            btn.className = 'btn btn-next';
-        }
-        
-        // Handle Enter key
-        document.getElementById('answer').addEventListener('keyup', function(e) {
-            if (e.key === 'Enter') {
-                checkAnswer();
-            }
+function App(){
+  const [screen,setScreen]=useState('start');
+  const [problem,setProblem]=useState({});
+  const [round,setRound]=useState(0);
+  const [score,setScore]=useState(0);
+  const [time,setTime]=useState(5);
+  const [flash,setFlash]=useState('');
+  const timerRef=useRef();
+
+  const makeProblem=()=>{
+    const ops=['+','-','×'];
+    const op=ops[Math.floor(Math.random()*3)];
+    let a,b,ans;
+    if(op==='+'){a=Math.floor(Math.random()*10);b=Math.floor(Math.random()*10);ans=a+b}
+    else if(op==='-'){a=Math.floor(Math.random()*10)+1;b=Math.floor(Math.random()*a);ans=a-b}
+    else{a=Math.floor(Math.random()*10);b=Math.floor(Math.random()*10);ans=a*b}
+    return {a,b,op,ans};
+  };
+
+  const startGame=()=>{
+    setScore(0);setRound(1);setProblem(makeProblem());setTime(5);setScreen('play');
+  };
+
+  const doFlash=(color)=>{
+    setFlash(color);
+    setTimeout(()=>setFlash(''),200);
+  };
+
+  const nextRound=(correct)=>{
+    if(correct){setScore(s=>s+1);doFlash('green')}
+    else{setScore(s=>Math.max(0,s-1));doFlash('red')}
+    if(round>=10){setTimeout(()=>setScreen('end'),300)}
+    else{setRound(r=>r+1);setProblem(makeProblem());setTime(5)}
+  };
+
+  const handleNum=(n)=>{
+    clearInterval(timerRef.current);
+    const correct=problem.ans===n||(problem.ans>=10&&Math.floor(problem.ans/10)===n);
+    if(problem.ans>=10&&Math.floor(problem.ans/10)===n){
+      const newAns=problem.ans%10;
+      setProblem(p=>({...p,ans:newAns,firstDigit:true}));
+      setTime(5);
+    }else{
+      nextRound(problem.ans===n||(problem.firstDigit&&n===problem.ans));
+    }
+  };
+
+  useEffect(()=>{
+    if(screen==='play'){
+      timerRef.current=setInterval(()=>{
+        setTime(t=>{
+          if(t<=0.1){clearInterval(timerRef.current);nextRound(false);return 5}
+          return t-0.1;
         });
-        
-        // Start with a problem
-        newProblem();
-    </script>
+      },100);
+      return ()=>clearInterval(timerRef.current);
+    }
+  },[screen,round]);
+
+  if(screen==='start')return(
+    <div className="app">
+      <h1>🧮 Math Flash Cards</h1>
+      <div className="problem">Ready?</div>
+      <button className="start-btn" onClick={startGame}>START!</button>
+    </div>
+  );
+
+  if(screen==='end')return(
+    <div className="app">
+      <div className="end-screen">
+        <h2>Great Job!</h2>
+        <p>Score: {score}/10</p>
+        <div className="coins">🪙 +{score} Coins!</div>
+      </div>
+      <button className="start-btn" style={{marginTop:20}} onClick={startGame}>Play Again</button>
+    </div>
+  );
+
+  return(
+    <div className="app">
+      <div className={`flash ${flash}`}/>
+      <div className="score">Round {round}/10 | Score: {score}</div>
+      <div className="timer-bar"><div className="timer-fill" style={{width:`${time*20}%`}}/></div>
+      <div className="problem">{problem.a} {problem.op} {problem.b}</div>
+      <div className="numpad">
+        {[1,2,3,4,5,6,7,8,9,0].map(n=>(
+          <button key={n} onClick={()=>handleNum(n)}>{n}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
 </body>
 </html>
