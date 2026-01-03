@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Math Pet</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:system-ui;background:linear-gradient(135deg,#a8e6cf,#88d8b0);min-height:100vh;overflow:hidden}
+.app{max-width:500px;margin:0 auto;padding:15px;min-height:100vh;display:flex;flex-direction:column}
+.header{display:flex;justify-content:space-between;align-items:center;padding:10px;background:rgba(255,255,255,0.9);border-radius:15px;margin-bottom:10px}
+.coins{font-size:1.4em;font-weight:bold;color:#f4a460}
+.hunger-wrap{flex:1;margin:0 15px}
+.hunger-bar{height:20px;background:#ddd;border-radius:10px;overflow:hidden}
+.hunger-fill{height:100%;background:linear-gradient(90deg,#ff6b6b,#feca57);transition:width 0.3s}
+.hunger-label{font-size:0.8em;text-align:center;color:#666}
+.pet-area{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;background:rgba(255,255,255,0.5);border-radius:25px;margin:10px 0;min-height:250px}
+.pet-container{position:relative;font-size:100px;line-height:1}
+.accessory{position:absolute;font-size:40px}
+.hat{top:-30px;left:50%;transform:translateX(-50%)}
+.bow{top:0;right:-20px}
+.glasses{top:25px;left:50%;transform:translateX(-50%);font-size:50px}
+.toy{bottom:-10px;right:-30px}
+.bg-emoji{position:absolute;font-size:30px;opacity:0.5}
+.buttons{display:flex;gap:10px;justify-content:center;margin:15px 0}
+.btn{padding:15px 30px;font-size:1.2em;border:none;border-radius:15px;cursor:pointer;font-weight:bold;transition:transform 0.1s}
+.btn:active{transform:scale(0.95)}
+.btn-play{background:linear-gradient(135deg,#74b9ff,#0984e3);color:#fff}
+.btn-shop{background:linear-gradient(135deg,#fd79a8,#e84393);color:#fff}
+.btn-back{background:#636e72;color:#fff}
+.game-area{flex:1;display:flex;flex-direction:column;background:rgba(255,255,255,0.95);border-radius:20px;padding:15px}
+.problem{font-size:2.5em;text-align:center;margin:10px 0;font-weight:bold}
+.timer{text-align:center;font-size:1.2em;color:#e74c3c}
+.answer{font-size:2em;text-align:center;min-height:50px;background:#f8f9fa;border-radius:10px;margin:10px;padding:10px}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px}
+.num-btn{padding:20px;font-size:1.8em;border:none;border-radius:15px;background:linear-gradient(135deg,#dfe6e9,#b2bec3);cursor:pointer;font-weight:bold}
+.num-btn:active{background:linear-gradient(135deg,#b2bec3,#636e72)}
+.num-btn.clear{background:linear-gradient(135deg,#fdcb6e,#f39c12)}
+.num-btn.submit{background:linear-gradient(135deg,#00b894,#00a085);color:#fff}
+.flash{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;animation:flash 0.3s}
+.flash-correct{background:rgba(0,255,0,0.4)}
+.flash-wrong{background:rgba(255,0,0,0.4)}
+@keyframes flash{0%{opacity:1}100%{opacity:0}}
+.shop{flex:1;background:rgba(255,255,255,0.95);border-radius:20px;padding:15px;overflow-y:auto}
+.shop-tabs{display:flex;gap:5px;margin-bottom:15px;flex-wrap:wrap}
+.tab{padding:10px 15px;border:none;border-radius:10px;cursor:pointer;font-size:1em;background:#dfe6e9}
+.tab.active{background:#74b9ff;color:#fff}
+.shop-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.shop-item{background:#f8f9fa;border-radius:15px;padding:15px;text-align:center;border:3px solid transparent}
+.shop-item.owned{border-color:#00b894}
+.shop-item.equipped{border-color:#f39c12;background:#fff9e6}
+.item-emoji{font-size:2.5em}
+.item-name{font-size:0.9em;margin:5px 0}
+.item-price{font-size:0.9em;color:#f4a460;font-weight:bold}
+.buy-btn{margin-top:8px;padding:8px 15px;border:none;border-radius:8px;background:#74b9ff;color:#fff;cursor:pointer;font-weight:bold}
+.buy-btn:disabled{background:#bdc3c7;cursor:not-allowed}
+.buy-btn.equip{background:#00b894}
+.pet-sad{filter:grayscale(0.5);animation:sad 1s infinite}
+@keyframes sad{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+.score-display{text-align:center;font-size:1.1em;color:#2d3436;margin:5px 0}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useEffect,useCallback}=React;
+const PETS=[
+{id:'dog',emoji:'🐶',name:'Dog',price:0},
+{id:'cat',emoji:'🐱',name:'Cat',price:50},
+{id:'bunny',emoji:'🐰',name:'Bunny',price:100},
+{id:'hamster',emoji:'🐹',name:'Hamster',price:150},
+{id:'fox',emoji:'🦊',name:'Fox',price:200},
+{id:'panda',emoji:'🐼',name:'Panda',price:300}
+];
+const ACCESSORIES=[
+{id:'bow1',emoji:'🎀',name:'Pink Bow',price:20,type:'bow'},
+{id:'bow2',emoji:'🎗️',name:'Ribbon',price:25,type:'bow'},
+{id:'hat1',emoji:'🎩',name:'Top Hat',price:30,type:'hat'},
+{id:'hat2',emoji:'👒',name:'Sun Hat',price:35,type:'hat'},
+{id:'hat3',emoji:'🎓',name:'Grad Cap',price:40,type:'hat'},
+{id:'glasses1',emoji:'👓',name:'Glasses',price:25,type:'glasses'},
+{id:'glasses2',emoji:'🕶️',name:'Sunglasses',price:30,type:'glasses'},
+{id:'toy1',emoji:'🧸',name:'Teddy',price:40,type:'toy'},
+{id:'toy2',emoji:'🎈',name:'Balloon',price:20,type:'toy'},
+{id:'toy3',emoji:'⚽',name:'Ball',price:25,type:'toy'}
+];
+const BACKGROUNDS=[
+{id:'bg1',emoji:'⭐',name:'Stars',price:50},
+{id:'bg2',emoji:'🌈',name:'Rainbow',price:60},
+{id:'bg3',emoji:'🌸',name:'Flowers',price:55},
+{id:'bg4',emoji:'❄️',name:'Snow',price:65}
+];
+const TREATS=[
+{id:'treat1',emoji:'🍕',name:'Pizza',price:15,hunger:30},
+{id:'treat2',emoji:'🍦',name:'Ice Cream',price:10,hunger:20},
+{id:'treat3',emoji:'🍪',name:'Cookie',price:8,hunger:15},
+{id:'treat4',emoji:'🍎',name:'Apple',price:5,hunger:10}
+];
+const load=k=>JSON.parse(localStorage.getItem('mathpet_'+k)||'null');
+const save=(k,v)=>localStorage.setItem('mathpet_'+k,JSON.stringify(v));
+function App(){
+const[coins,setCoins]=useState(()=>load('coins')??0);
+const[hunger,setHunger]=useState(()=>load('hunger')??100);
+const[currentPet,setCurrentPet]=useState(()=>load('currentPet')??'dog');
+const[unlockedPets,setUnlockedPets]=useState(()=>load('unlockedPets')??['dog']);
+const[ownedItems,setOwnedItems]=useState(()=>load('ownedItems')??[]);
+const[equipped,setEquipped]=useState(()=>load('equipped')??{});
+const[screen,setScreen]=useState('main');
+const[problem,setProblem]=useState(null);
+const[answer,setAnswer]=useState('');
+const[timer,setTimer]=useState(10);
+const[flash,setFlash]=useState(null);
+const[score,setScore]=useState({correct:0,total:0});
+const[shopTab,setShopTab]=useState('accessories');
+useEffect(()=>{save('coins',coins)},[coins]);
+useEffect(()=>{save('hunger',hunger)},[hunger]);
+useEffect(()=>{save('currentPet',currentPet)},[currentPet]);
+useEffect(()=>{save('unlockedPets',unlockedPets)},[unlockedPets]);
+useEffect(()=>{save('ownedItems',ownedItems)},[ownedItems]);
+useEffect(()=>{save('equipped',equipped)},[equipped]);
+useEffect(()=>{
+const i=setInterval(()=>{
+setHunger(h=>Math.max(0,h-0.5));
+},30000);
+return()=>clearInterval(i);
+},[]);
+const genProblem=useCallback(()=>{
+const ops=['×','÷'];
+const op=ops[Math.floor(Math.random()*2)];
+let a,b,ans;
+if(op==='×'){
+a=Math.floor(Math.random()*10);
+b=Math.floor(Math.random()*10);
+ans=a*b;
+}else{
+b=Math.floor(Math.random()*9)+1;
+ans=Math.floor(Math.random()*10);
+a=b*ans;
+}
+setProblem({a,b,op,ans});
+setAnswer('');
+setTimer(10);
+},[]);
+useEffect(()=>{
+if(screen==='play'&&timer>0&&problem){
+const t=setTimeout(()=>setTimer(timer-1),1000);
+return()=>clearTimeout(t);
+}else if(screen==='play'&&timer===0&&problem){
+showFlash('wrong');
+setTimeout(genProblem,500);
+}
+},[screen,timer,problem,genProblem]);
+const showFlash=type=>{
+setFlash(type);
+setTimeout(()=>setFlash(null),300);
+};
+const startGame=()=>{
+setScreen('play');
+setScore({correct:0,total:0});
+genProblem();
+};
+const checkAnswer=()=>{
+if(!answer)return;
+const num=parseInt(answer,10);
+setScore(s=>({correct:s.correct+(num===problem.ans?1:0),total:s.total+1}));
+if(num===problem.ans){
+showFlash('correct');
+setCoins(c=>c+5);
+setHunger(h=>Math.min(100,h+2));
+}else{
+showFlash('wrong');
+}
+setTimeout(genProblem,500);
+};
+const numPress=n=>{
+if(answer.length<2)setAnswer(answer+n);
+};
+const clearAnswer=()=>setAnswer('');
+const buyItem=(item,type)=>{
+if(coins<item.price)return;
+setCoins(c=>c-item.price);
+if(type==='pet'){
+setUnlockedPets(p=>[...p,item.id]);
+}else if(type==='treat'){
+setHunger(h=>Math.min(100,h+item.hunger));
+}else{
+setOwnedItems(o=>[...o,item.id]);
+}
+};
+const equipItem=(item,type)=>{
+if(type==='pet'){
+setCurrentPet(item.id);
+}else if(type==='bg'){
+setEquipped(e=>({...e,bg:e.bg===item.id?null:item.id}));
+}else{
+setEquipped(e=>({...e,[item.type]:e[item.type]===item.id?null:item.id}));
+}
+};
+const pet=PETS.find(p=>p.id===currentPet);
+const bgItem=BACKGROUNDS.find(b=>b.id===equipped.bg);
+const renderMain=()=>(
+<>
+<div className="header">
+<div className="coins">🪙 {coins}</div>
+<div className="hunger-wrap">
+<div className="hunger-label">Hunger</div>
+<div className="hunger-bar"><div className="hunger-fill" style={{width:hunger+'%'}}/></div>
+</div>
+</div>
+<div className="pet-area" style={bgItem?{background:`rgba(255,255,255,0.8)`}:{}}>
+{bgItem&&[...Array(8)].map((_,i)=>(
+<span key={i} className="bg-emoji" style={{top:20+Math.random()*60+'%',left:10+Math.random()*80+'%'}}>{bgItem.emoji}</span>
+))}
+<div className={`pet-container${hunger<20?' pet-sad':''}`}>
+{equipped.hat&&<span className="accessory hat">{ACCESSORIES.find(a=>a.id===equipped.hat)?.emoji}</span>}
+{equipped.bow&&<span className="accessory bow">{ACCESSORIES.find(a=>a.id===equipped.bow)?.emoji}</span>}
+{equipped.glasses&&<span className="accessory glasses">{ACCESSORIES.find(a=>a.id===equipped.glasses)?.emoji}</span>}
+{equipped.toy&&<span className="accessory toy">{ACCESSORIES.find(a=>a.id===equipped.toy)?.emoji}</span>}
+<span>{pet.emoji}</span>
+</div>
+{hunger<20&&<div style={{marginTop:10,color:'#e74c3c'}}>Your pet is hungry! 😢</div>}
+</div>
+<div className="buttons">
+<button className="btn btn-play" onClick={startGame}>▶️ Play</button>
+<button className="btn btn-shop" onClick={()=>setScreen('shop')}>🛒 Shop</button>
+</div>
+</>
+);
+const renderPlay=()=>(
+<div className="game-area">
+<div className="score-display">✓ {score.correct} / {score.total}</div>
+<div className="timer">⏱️ {timer}s</div>
+<div className="problem">{problem?.a} {problem?.op} {problem?.b} = ?</div>
+<div className="answer">{answer||'_'}</div>
+<div className="numpad">
+{[1,2,3,4,5,6,7,8,9].map(n=>(
+<button key={n} className="num-btn" onClick={()=>numPress(n)}>{n}</button>
+))}
+<button className="num-btn clear" onClick={clearAnswer}>C</button>
+<button className="num-btn" onClick={()=>numPress(0)}>0</button>
+<button className="num-btn submit" onClick={checkAnswer}>✓</button>
+</div>
+<button className="btn btn-back" onClick={()=>setScreen('main')} style={{marginTop:10}}>← Back</button>
+</div>
+);
+const renderShop=()=>(
+<div className="shop">
+<div className="shop-tabs">
+<button className={`tab${shopTab==='accessories'?' active':''}`} onClick={()=>setShopTab('accessories')}>🎀 Items</button>
+<button className={`tab${shopTab==='backgrounds'?' active':''}`} onClick={()=>setShopTab('backgrounds')}>⭐ Backgrounds</button>
+<button className={`tab${shopTab==='treats'?' active':''}`} onClick={()=>setShopTab('treats')}>🍕 Treats</button>
+<button className={`tab${shopTab==='pets'?' active':''}`} onClick={()=>setShopTab('pets')}>🐾 Pets</button>
+</div>
+<div className="shop-grid">
+{shopTab==='accessories'&&ACCESSORIES.map(item=>{
+const owned=ownedItems.includes(item.id);
+const isEquipped=equipped[item.type]===item.id;
+return(
+<div key={item.id} className={`shop-item${owned?' owned':''}${isEquipped?' equipped':''}`}>
+<div className="item-emoji">{item.emoji}</div>
+<div className="item-name">{item.name}</div>
+{!owned&&<div className="item-price">🪙 {item.price}</div>}
+{!owned?<button className="buy-btn" disabled={coins<item.price} onClick={()=>buyItem(item,'accessory')}>Buy</button>
+:<button className="buy-btn equip" onClick={()=>equipItem(item,'accessory')}>{isEquipped?'Remove':'Equip'}</button>}
+</div>
+);})}
+{shopTab==='backgrounds'&&BACKGROUNDS.map(item=>{
+const owned=ownedItems.includes(item.id);
+const isEquipped=equipped.bg===item.id;
+return(
+<div key={item.id} className={`shop-item${owned?' owned':''}${isEquipped?' equipped':''}`}>
+<div className="item-emoji">{item.emoji}</div>
+<div className="item-name">{item.name}</div>
+{!owned&&<div className="item-price">🪙 {item.price}</div>}
+{!owned?<button className="buy-btn" disabled={coins<item.price} onClick={()=>buyItem(item,'bg')}>Buy</button>
+:<button className="buy-btn equip" onClick={()=>equipItem(item,'bg')}>{isEquipped?'Remove':'Equip'}</button>}
+</div>
+);})}
+{shopTab==='treats'&&TREATS.map(item=>(
+<div key={item.id} className="shop-item">
+<div className="item-emoji">{item.emoji}</div>
+<div className="item-name">{item.name}</div>
+<div className="item-price">🪙 {item.price} (+{item.hunger}❤️)</div>
+<button className="buy-btn" disabled={coins<item.price} onClick={()=>buyItem(item,'treat')}>Buy</button>
+</div>
+))}
+{shopTab==='pets'&&PETS.map(item=>{
+const owned=unlockedPets.includes(item.id);
+const isCurrent=currentPet===item.id;
+return(
+<div key={item.id} className={`shop-item${owned?' owned':''}${isCurrent?' equipped':''}`}>
+<div className="item-emoji">{item.emoji}</div>
+<div className="item-name">{item.name}</div>
+{!owned&&item.price>0&&<div className="item-price">🪙 {item.price}</div>}
+{!owned&&item.price>0?<button className="buy-btn" disabled={coins<item.price} onClick={()=>buyItem(item,'pet')}>Unlock</button>
+:owned&&<button className="buy-btn equip" onClick={()=>equipItem(item,'pet')}>{isCurrent?'Selected':'Select'}</button>}
+{item.price===0&&!owned&&<div style={{fontSize:'0.8em',color:'#666'}}>Starter Pet</div>}
+</div>
+);})}
+</div>
+<button className="btn btn-back" onClick={()=>setScreen('main')} style={{marginTop:15,width:'100%'}}>← Back</button>
+</div>
+);
+return(
+<div className="app">
+{screen==='main'&&renderMain()}
+{screen==='play'&&renderPlay()}
+{screen==='shop'&&renderShop()}
+{flash&&<div className={`flash flash-${flash}`}/>}
+</div>
+);
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
