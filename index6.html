@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Math Pet Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 30px;
+            padding: 30px;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1 {
+            color: #764ba2;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        h2 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            font-size: 1.5em;
+        }
+
+        .stat {
+            background: #f0f0f0;
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+
+        .pet-display {
+            text-align: center;
+            margin: 30px 0;
+            position: relative;
+            min-height: 250px;
+        }
+
+        .pet-emoji {
+            font-size: 150px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .accessory {
+            position: absolute;
+            font-size: 60px;
+        }
+
+        .accessory.hat {
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .accessory.glasses {
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .accessory.bow {
+            top: 10px;
+            right: 20px;
+        }
+
+        .accessory.toy {
+            bottom: 0;
+            right: 10px;
+        }
+
+        .hunger-bar {
+            margin: 20px auto;
+            width: 80%;
+            max-width: 400px;
+        }
+
+        .hunger-label {
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 1.3em;
+        }
+
+        .hunger-track {
+            background: #ddd;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 3px solid #333;
+        }
+
+        .hunger-fill {
+            background: linear-gradient(90deg, #ff6b6b, #feca57);
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 1.5em;
+            border-radius: 15px;
+            cursor: pointer;
+            margin: 10px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .math-problem {
+            text-align: center;
+            font-size: 3em;
+            margin: 30px 0;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .timer {
+            text-align: center;
+            font-size: 2em;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #ff6b6b;
+        }
+
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 400px;
+            margin: 30px auto;
+        }
+
+        .number-btn {
+            font-size: 2em;
+            padding: 25px;
+            background: #667eea;
+        }
+
+        .answer-display {
+            text-align: center;
+            font-size: 2.5em;
+            margin: 20px 0;
+            min-height: 60px;
+            font-weight: bold;
+            color: #764ba2;
+        }
+
+        .flash-correct {
+            animation: flash-green 0.5s;
+        }
+
+        .flash-wrong {
+            animation: flash-red 0.5s;
+        }
+
+        @keyframes flash-green {
+            0%, 100% { background: white; }
+            50% { background: #51cf66; }
+        }
+
+        @keyframes flash-red {
+            0%, 100% { background: white; }
+            50% { background: #ff6b6b; }
+        }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .shop-item {
+            background: #f8f9fa;
+            border: 3px solid #ddd;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .shop-item:active {
+            transform: scale(0.95);
+        }
+
+        .shop-item.owned {
+            border-color: #51cf66;
+            background: #e7f5ff;
+        }
+
+        .shop-item.equipped {
+            border-color: #764ba2;
+            background: #f3e5f5;
+        }
+
+        .shop-item-emoji {
+            font-size: 3em;
+            margin: 10px 0;
+        }
+
+        .shop-item-name {
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .shop-item-price {
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .score-display {
+            text-align: center;
+            font-size: 2em;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            background: #868e96;
+            font-size: 1.2em;
+            padding: 15px 30px;
+        }
+
+        .pet-status {
+            text-align: center;
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Main Screen -->
+        <div id="main-screen" class="screen active">
+            <h1>🎮 Math Pet 🐾</h1>
+
+            <div class="stats">
+                <div class="stat">💰 Coins: <span id="coin-display">0</span></div>
+            </div>
+
+            <div class="pet-display" id="pet-container">
+                <div class="pet-emoji" id="pet-emoji">🐶</div>
+                <div id="accessories-container"></div>
+            </div>
+
+            <div class="pet-status" id="pet-mood">😊</div>
+
+            <div class="hunger-bar">
+                <div class="hunger-label">Hunger: <span id="hunger-value">100</span>%</div>
+                <div class="hunger-track">
+                    <div class="hunger-fill" id="hunger-fill" style="width: 100%"></div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button onclick="startMathRound()">🎯 Play Math Game</button>
+                <button onclick="showShop()">🛍️ Shop</button>
+            </div>
+        </div>
+
+        <!-- Math Game Screen -->
+        <div id="math-screen" class="screen">
+            <h2>Math Time! 📚</h2>
+
+            <div class="stats">
+                <div class="stat">Round Score: <span id="round-score">0</span></div>
+                <div class="stat">Question: <span id="question-number">1</span>/10</div>
+            </div>
+
+            <div class="timer">⏱️ <span id="timer">10</span>s</div>
+
+            <div class="math-problem" id="math-problem">5 × 7 = ?</div>
+
+            <div class="answer-display" id="answer-display"></div>
+
+            <div class="number-pad">
+                <button class="number-btn" onclick="addDigit(1)">1</button>
+                <button class="number-btn" onclick="addDigit(2)">2</button>
+                <button class="number-btn" onclick="addDigit(3)">3</button>
+                <button class="number-btn" onclick="addDigit(4)">4</button>
+                <button class="number-btn" onclick="addDigit(5)">5</button>
+                <button class="number-btn" onclick="addDigit(6)">6</button>
+                <button class="number-btn" onclick="addDigit(7)">7</button>
+                <button class="number-btn" onclick="addDigit(8)">8</button>
+                <button class="number-btn" onclick="addDigit(9)">9</button>
+                <button class="number-btn" onclick="clearAnswer()">❌</button>
+                <button class="number-btn" onclick="addDigit(0)">0</button>
+                <button class="number-btn" onclick="submitAnswer()">✓</button>
+            </div>
+        </div>
+
+        <!-- Round Complete Screen -->
+        <div id="complete-screen" class="screen">
+            <h2>Round Complete! 🎉</h2>
+
+            <div class="score-display">
+                <div>Correct: <span id="correct-count">0</span>/10</div>
+                <div>Coins Earned: <span id="coins-earned">0</span> 💰</div>
+                <div>Your pet is fed! 🍖</div>
+            </div>
+
+            <div class="button-group">
+                <button onclick="returnToMain()">🏠 Home</button>
+                <button onclick="startMathRound()">🔄 Play Again</button>
+            </div>
+        </div>
+
+        <!-- Shop Screen -->
+        <div id="shop-screen" class="screen">
+            <h2>🛍️ Pet Shop</h2>
+
+            <div class="stats">
+                <div class="stat">💰 Coins: <span id="shop-coin-display">0</span></div>
+            </div>
+
+            <h3 style="margin: 20px 0; color: #764ba2;">Accessories</h3>
+            <div class="shop-grid" id="accessories-shop"></div>
+
+            <h3 style="margin: 20px 0; color: #764ba2;">Pets</h3>
+            <div class="shop-grid" id="pets-shop"></div>
+
+            <div class="button-group">
+                <button class="back-btn" onclick="returnToMain()">⬅️ Back</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State
+        let gameState = {
+            coins: 0,
+            hunger: 100,
+            currentPet: '🐶',
+            ownedPets: ['🐶'],
+            ownedItems: [],
+            equippedItems: {},
+            currentAnswer: '',
+            currentProblem: null,
+            questionNumber: 0,
+            roundScore: 0,
+            timer: null,
+            timeLeft: 10
+        };
+
+        // Shop Items
+        const shopItems = {
+            accessories: [
+                { id: 'bow', emoji: '🎀', name: 'Bow', price: 50, slot: 'bow' },
+                { id: 'hat', emoji: '🎩', name: 'Top Hat', price: 75, slot: 'hat' },
+                { id: 'glasses', emoji: '👓', name: 'Glasses', price: 60, slot: 'glasses' },
+                { id: 'toy', emoji: '🧸', name: 'Teddy Bear', price: 40, slot: 'toy' },
+                { id: 'star', emoji: '⭐', name: 'Star', price: 80, slot: 'bow' },
+                { id: 'treat', emoji: '🍕', name: 'Pizza Treat', price: 30, slot: 'consumable' }
+            ],
+            pets: [
+                { id: 'dog', emoji: '🐶', name: 'Dog', price: 0 },
+                { id: 'cat', emoji: '🐱', name: 'Cat', price: 100 },
+                { id: 'bunny', emoji: '🐰', name: 'Bunny', price: 150 },
+                { id: 'hamster', emoji: '🐹', name: 'Hamster', price: 120 },
+                { id: 'fox', emoji: '🦊', name: 'Fox', price: 200 },
+                { id: 'panda', emoji: '🐼', name: 'Panda', price: 250 }
+            ]
+        };
+
+        // Initialize game
+        function init() {
+            loadGame();
+            updateDisplay();
+            startHungerDecay();
+        }
+
+        // Save/Load
+        function saveGame() {
+            localStorage.setItem('mathPetSave', JSON.stringify({
+                coins: gameState.coins,
+                hunger: gameState.hunger,
+                currentPet: gameState.currentPet,
+                ownedPets: gameState.ownedPets,
+                ownedItems: gameState.ownedItems,
+                equippedItems: gameState.equippedItems
+            }));
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem('mathPetSave');
+            if (saved) {
+                const data = JSON.parse(saved);
+                gameState.coins = data.coins || 0;
+                gameState.hunger = data.hunger || 100;
+                gameState.currentPet = data.currentPet || '🐶';
+                gameState.ownedPets = data.ownedPets || ['🐶'];
+                gameState.ownedItems = data.ownedItems || [];
+                gameState.equippedItems = data.equippedItems || {};
+            }
+        }
+
+        // Display Updates
+        function updateDisplay() {
+            document.getElementById('coin-display').textContent = gameState.coins;
+            document.getElementById('shop-coin-display').textContent = gameState.coins;
+            document.getElementById('hunger-value').textContent = Math.max(0, Math.round(gameState.hunger));
+            document.getElementById('hunger-fill').style.width = Math.max(0, gameState.hunger) + '%';
+            document.getElementById('pet-emoji').textContent = gameState.currentPet;
+
+            // Update pet mood
+            const mood = gameState.hunger > 60 ? '😊' : gameState.hunger > 30 ? '😐' : '😢';
+            document.getElementById('pet-mood').textContent = mood;
+
+            // Update accessories
+            updateAccessories();
+            saveGame();
+        }
+
+        function updateAccessories() {
+            const container = document.getElementById('accessories-container');
+            container.innerHTML = '';
+
+            for (let slot in gameState.equippedItems) {
+                const itemId = gameState.equippedItems[slot];
+                const item = shopItems.accessories.find(i => i.id === itemId);
+                if (item) {
+                    const accessory = document.createElement('div');
+                    accessory.className = `accessory ${item.slot}`;
+                    accessory.textContent = item.emoji;
+                    container.appendChild(accessory);
+                }
+            }
+        }
+
+        // Hunger System
+        function startHungerDecay() {
+            setInterval(() => {
+                gameState.hunger = Math.max(0, gameState.hunger - 0.5);
+                updateDisplay();
+            }, 10000); // Decrease every 10 seconds
+        }
+
+        // Math Game
+        function startMathRound() {
+            gameState.questionNumber = 0;
+            gameState.roundScore = 0;
+            showScreen('math-screen');
+            nextQuestion();
+        }
+
+        function generateProblem() {
+            const operations = [
+                () => {
+                    const a = Math.floor(Math.random() * 10);
+                    const b = Math.floor(Math.random() * 10);
+                    return { text: `${a} × ${b}`, answer: a * b };
+                },
+                () => {
+                    const b = Math.floor(Math.random() * 9) + 1;
+                    const answer = Math.floor(Math.random() * 10);
+                    const a = b * answer;
+                    return { text: `${a} ÷ ${b}`, answer: answer };
+                }
+            ];
+
+            return operations[Math.floor(Math.random() * operations.length)]();
+        }
+
+        function nextQuestion() {
+            if (gameState.questionNumber >= 10) {
+                endRound();
+                return;
+            }
+
+            gameState.questionNumber++;
+            gameState.currentAnswer = '';
+            gameState.currentProblem = generateProblem();
+            gameState.timeLeft = 10;
+
+            document.getElementById('question-number').textContent = gameState.questionNumber;
+            document.getElementById('math-problem').textContent = gameState.currentProblem.text + ' = ?';
+            document.getElementById('answer-display').textContent = '';
+            document.getElementById('round-score').textContent = gameState.roundScore;
+
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(gameState.timer);
+            gameState.timer = setInterval(() => {
+                gameState.timeLeft--;
+                document.getElementById('timer').textContent = gameState.timeLeft;
+
+                if (gameState.timeLeft <= 0) {
+                    clearInterval(gameState.timer);
+                    checkAnswer(false);
+                }
+            }, 1000);
+        }
+
+        function addDigit(digit) {
+            if (gameState.currentAnswer.length < 2) {
+                gameState.currentAnswer += digit;
+                document.getElementById('answer-display').textContent = gameState.currentAnswer;
+            }
+        }
+
+        function clearAnswer() {
+            gameState.currentAnswer = '';
+            document.getElementById('answer-display').textContent = '';
+        }
+
+        function submitAnswer() {
+            if (gameState.currentAnswer === '') return;
+            clearInterval(gameState.timer);
+            checkAnswer(parseInt(gameState.currentAnswer) === gameState.currentProblem.answer);
+        }
+
+        function checkAnswer(isCorrect) {
+            const container = document.querySelector('.container');
+
+            if (isCorrect) {
+                gameState.roundScore += 10;
+                container.classList.add('flash-correct');
+                setTimeout(() => container.classList.remove('flash-correct'), 500);
+            } else {
+                container.classList.add('flash-wrong');
+                setTimeout(() => container.classList.remove('flash-wrong'), 500);
+            }
+
+            setTimeout(() => {
+                nextQuestion();
+            }, 800);
+        }
+
+        function endRound() {
+            const coinsEarned = gameState.roundScore;
+            gameState.coins += coinsEarned;
+            gameState.hunger = Math.min(100, gameState.hunger + 20);
+
+            document.getElementById('correct-count').textContent = gameState.roundScore / 10;
+            document.getElementById('coins-earned').textContent = coinsEarned;
+
+            updateDisplay();
+            showScreen('complete-screen');
+        }
+
+        // Shop
+        function showShop() {
+            renderShop();
+            showScreen('shop-screen');
+        }
+
+        function renderShop() {
+            const accessoriesContainer = document.getElementById('accessories-shop');
+            const petsContainer = document.getElementById('pets-shop');
+
+            accessoriesContainer.innerHTML = '';
+            petsContainer.innerHTML = '';
+
+            // Render accessories
+            shopItems.accessories.forEach(item => {
+                const owned = gameState.ownedItems.includes(item.id);
+                const equipped = gameState.equippedItems[item.slot] === item.id;
+
+                const div = document.createElement('div');
+                div.className = 'shop-item';
+                if (owned) div.classList.add('owned');
+                if (equipped) div.classList.add('equipped');
+
+                div.innerHTML = `
+                    <div class="shop-item-emoji">${item.emoji}</div>
+                    <div class="shop-item-name">${item.name}</div>
+                    <div class="shop-item-price">${item.price} 💰</div>
+                `;
+
+                div.onclick = () => buyItem(item);
+                accessoriesContainer.appendChild(div);
+            });
+
+            // Render pets
+            shopItems.pets.forEach(pet => {
+                const owned = gameState.ownedPets.includes(pet.emoji);
+                const active = gameState.currentPet === pet.emoji;
+
+                const div = document.createElement('div');
+                div.className = 'shop-item';
+                if (owned) div.classList.add('owned');
+                if (active) div.classList.add('equipped');
+
+                div.innerHTML = `
+                    <div class="shop-item-emoji">${pet.emoji}</div>
+                    <div class="shop-item-name">${pet.name}</div>
+                    <div class="shop-item-price">${pet.price === 0 ? 'FREE' : pet.price + ' 💰'}</div>
+                `;
+
+                div.onclick = () => buyPet(pet);
+                petsContainer.appendChild(div);
+            });
+        }
+
+        function buyItem(item) {
+            if (item.slot === 'consumable') {
+                // Special treats
+                if (gameState.coins >= item.price) {
+                    gameState.coins -= item.price;
+                    gameState.hunger = Math.min(100, gameState.hunger + 40);
+                    updateDisplay();
+                    renderShop();
+                    alert(`Fed your pet ${item.emoji}! Hunger restored!`);
+                } else {
+                    alert('Not enough coins!');
+                }
+            } else if (!gameState.ownedItems.includes(item.id)) {
+                // Buy new item
+                if (gameState.coins >= item.price) {
+                    gameState.coins -= item.price;
+                    gameState.ownedItems.push(item.id);
+                    gameState.equippedItems[item.slot] = item.id;
+                    updateDisplay();
+                    renderShop();
+                } else {
+                    alert('Not enough coins!');
+                }
+            } else {
+                // Toggle equip
+                if (gameState.equippedItems[item.slot] === item.id) {
+                    delete gameState.equippedItems[item.slot];
+                } else {
+                    gameState.equippedItems[item.slot] = item.id;
+                }
+                updateDisplay();
+                renderShop();
+            }
+        }
+
+        function buyPet(pet) {
+            if (!gameState.ownedPets.includes(pet.emoji)) {
+                if (gameState.coins >= pet.price) {
+                    gameState.coins -= pet.price;
+                    gameState.ownedPets.push(pet.emoji);
+                    gameState.currentPet = pet.emoji;
+                    updateDisplay();
+                    renderShop();
+                } else {
+                    alert('Not enough coins!');
+                }
+            } else {
+                gameState.currentPet = pet.emoji;
+                updateDisplay();
+                renderShop();
+            }
+        }
+
+        // Screen Management
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function returnToMain() {
+            showScreen('main-screen');
+        }
+
+        // Start game
+        init();
+    </script>
+</body>
+</html>
