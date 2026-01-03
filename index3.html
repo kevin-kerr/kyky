@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Math Flash Cards</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}
+body{background:#9b59b6;min-height:100vh;display:flex;justify-content:center;align-items:center}
+.app{text-align:center;padding:20px;width:100%;max-width:400px}
+h1{color:#fff;font-size:2em;margin-bottom:20px;text-shadow:2px 2px 4px rgba(0,0,0,0.3)}
+.problem{background:#fff;border-radius:20px;padding:30px;font-size:3em;font-weight:bold;color:#8e44ad;margin:20px 0;box-shadow:0 8px 20px rgba(0,0,0,0.2)}
+.timer{font-size:2em;color:#fff;margin:10px 0}
+.timer-bar{background:rgba(255,255,255,0.3);height:20px;border-radius:10px;overflow:hidden;margin:10px 0}
+.timer-fill{background:#f1c40f;height:100%;transition:width 0.1s linear}
+.score{color:#fff;font-size:1.5em;margin:10px 0}
+.numpad{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:20px 0}
+.numpad button{background:#fff;border:none;border-radius:15px;padding:20px;font-size:1.8em;font-weight:bold;color:#8e44ad;box-shadow:0 4px 10px rgba(0,0,0,0.2);cursor:pointer;transition:transform 0.1s}
+.numpad button:active{transform:scale(0.95)}
+.start-btn{background:#f1c40f;border:none;border-radius:20px;padding:20px 60px;font-size:1.5em;font-weight:bold;color:#8e44ad;cursor:pointer;box-shadow:0 6px 15px rgba(0,0,0,0.3)}
+.coins{font-size:2em;color:#f1c40f;margin:20px 0}
+.flash{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;opacity:0;transition:opacity 0.1s}
+.flash.green{background:#2ecc71;opacity:0.5}
+.flash.red{background:#e74c3c;opacity:0.5}
+.end-screen{background:#fff;border-radius:20px;padding:30px;box-shadow:0 8px 20px rgba(0,0,0,0.2)}
+.end-screen h2{color:#8e44ad;font-size:2em}
+.end-screen p{font-size:1.5em;color:#666;margin:10px 0}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel">
+const {useState,useEffect,useRef}=React;
+
+function App(){
+  const [screen,setScreen]=useState('start');
+  const [problem,setProblem]=useState({});
+  const [round,setRound]=useState(0);
+  const [score,setScore]=useState(0);
+  const [time,setTime]=useState(10);
+  const [flash,setFlash]=useState('');
+  const timerRef=useRef();
+
+  const makeProblem=()=>{
+    const op=Math.random()<0.5?'×':'÷';
+    let a,b,ans;
+    if(op==='×'){a=Math.floor(Math.random()*10);b=Math.floor(Math.random()*10);ans=a*b}
+    else{b=Math.floor(Math.random()*9)+1;ans=Math.floor(Math.random()*10);a=b*ans}
+    return {a,b,op,ans};
+  };
+
+  const startGame=()=>{
+    setScore(0);setRound(1);setProblem(makeProblem());setTime(10);setScreen('play');
+  };
+
+  const doFlash=(color)=>{
+    setFlash(color);
+    setTimeout(()=>setFlash(''),200);
+  };
+
+  const nextRound=(correct)=>{
+    if(correct){setScore(s=>s+1);doFlash('green')}
+    else{setScore(s=>Math.max(0,s-1));doFlash('red')}
+    if(round>=10){setTimeout(()=>setScreen('end'),300)}
+    else{setRound(r=>r+1);setProblem(makeProblem());setTime(10)}
+  };
+
+  const handleNum=(n)=>{
+    clearInterval(timerRef.current);
+    const correct=problem.ans===n||(problem.ans>=10&&Math.floor(problem.ans/10)===n);
+    if(problem.ans>=10&&Math.floor(problem.ans/10)===n){
+      const newAns=problem.ans%10;
+      setProblem(p=>({...p,ans:newAns,firstDigit:true}));
+      setTime(10);
+    }else{
+      nextRound(problem.ans===n||(problem.firstDigit&&n===problem.ans));
+    }
+  };
+
+  useEffect(()=>{
+    if(screen==='play'){
+      timerRef.current=setInterval(()=>{
+        setTime(t=>{
+          if(t<=0.1){clearInterval(timerRef.current);nextRound(false);return 10}
+          return t-0.1;
+        });
+      },100);
+      return ()=>clearInterval(timerRef.current);
+    }
+  },[screen,round]);
+
+  if(screen==='start')return(
+    <div className="app">
+      <h1>🧮 Math Flash Cards</h1>
+      <div className="problem">Ready?</div>
+      <button className="start-btn" onClick={startGame}>START!</button>
+    </div>
+  );
+
+  if(screen==='end')return(
+    <div className="app">
+      <div className="end-screen">
+        <h2>Great Job!</h2>
+        <p>Score: {score}/10</p>
+        <div className="coins">🪙 +{score} Coins!</div>
+      </div>
+      <button className="start-btn" style={{marginTop:20}} onClick={startGame}>Play Again</button>
+    </div>
+  );
+
+  return(
+    <div className="app">
+      <div className={`flash ${flash}`}/>
+      <div className="score">Round {round}/10 | Score: {score}</div>
+      <div className="timer-bar"><div className="timer-fill" style={{width:`${time*10}%`}}/></div>
+      <div className="problem">{problem.a} {problem.op} {problem.b}</div>
+      <div className="numpad">
+        {[1,2,3,4,5,6,7,8,9,0].map(n=>(
+          <button key={n} onClick={()=>handleNum(n)}>{n}</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
